@@ -19,10 +19,10 @@ import timeit
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument('--image_data_dir', type=str, default='dataset/VOCdevkit/VOC2012/JPEGImages',
+parser.add_argument('--image_data_dir', type=str, default='dataset/TongueDataSet/val/images',
                     help='The directory containing the image data.')
 
-parser.add_argument('--label_data_dir', type=str, default='dataset/VOCdevkit/VOC2012/SegmentationClassAug',
+parser.add_argument('--label_data_dir', type=str, default='dataset/TongueDataSet/val/masks',
                     help='The directory containing the ground truth label data.')
 
 parser.add_argument('--evaluation_data_list', type=str, default='./dataset/val.txt',
@@ -41,7 +41,7 @@ parser.add_argument('--output_stride', type=int, default=16,
                     choices=[8, 16],
                     help='Output stride for DeepLab v3. Currently 8 or 16 is supported.')
 
-_NUM_CLASSES = 21
+_NUM_CLASSES = 2
 
 
 def main(unused_argv):

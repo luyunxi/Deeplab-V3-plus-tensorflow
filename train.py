@@ -16,14 +16,13 @@ from tensorflow.python import debug as tf_debug
 import shutil
 
 parser = argparse.ArgumentParser()
-
 parser.add_argument('--model_dir', type=str, default='./model',
                     help='Base directory for the model.')
 
 parser.add_argument('--clean_model_dir', action='store_true',
                     help='Whether to clean up the model directory if present.')
 
-parser.add_argument('--train_epochs', type=int, default=26,
+parser.add_argument('--train_epochs', type=int, default=3000,
                     help='Number of training epochs: '
                          'For 30K iteration with batch size 6, train_epoch = 17.01 (= 30K * 6 / 10,582). '
                          'For 30K iteration with batch size 8, train_epoch = 22.68 (= 30K * 8 / 10,582). '
@@ -32,13 +31,13 @@ parser.add_argument('--train_epochs', type=int, default=26,
                          'For 30K iteration with batch size 15, train_epoch = 42.53 (= 30K * 15 / 10,582). '
                          'For 30K iteration with batch size 16, train_epoch = 45.36 (= 30K * 16 / 10,582).')
 
-parser.add_argument('--epochs_per_eval', type=int, default=1,
+parser.add_argument('--epochs_per_eval', type=int, default=8,
                     help='The number of training epochs to run between evaluations.')
 
 parser.add_argument('--tensorboard_images_max_outputs', type=int, default=6,
                     help='Max number of batch elements to generate for Tensorboard.')
 
-parser.add_argument('--batch_size', type=int, default=10,
+parser.add_argument('--batch_size', type=int, default=8,
                     help='Number of examples per batch.')
 
 parser.add_argument('--learning_rate_policy', type=str, default='poly',
@@ -80,7 +79,9 @@ parser.add_argument('--weight_decay', type=float, default=2e-4,
 parser.add_argument('--debug', action='store_true',
                     help='Whether to use debugger to track down bad values during training.')
 
-_NUM_CLASSES = 21
+#change the number of classes according to the project
+
+_NUM_CLASSES = 2
 _HEIGHT = 513
 _WIDTH = 513
 _DEPTH = 3
@@ -94,8 +95,8 @@ _MOMENTUM = 0.9
 _BATCH_NORM_DECAY = 0.9997
 
 _NUM_IMAGES = {
-    'train': 10582,
-    'validation': 1449,
+    'train': 1802,
+    'validation': 402,
 }
 
 

@@ -16,7 +16,7 @@ from utils import dataset_util
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument('--data_dir', type=str, default='./dataset/VOCdevkit/VOC2012',
+parser.add_argument('--data_dir', type=str, default='./dataset/TongueDataSet',
                     help='Path to the directory containing the PASCAL VOC data.')
 
 parser.add_argument('--output_path', type=str, default='./dataset',
@@ -28,10 +28,10 @@ parser.add_argument('--train_data_list', type=str, default='./dataset/train.txt'
 parser.add_argument('--valid_data_list', type=str, default='./dataset/val.txt',
                     help='Path to the file listing the validation data.')
 
-parser.add_argument('--image_data_dir', type=str, default='JPEGImages',
+parser.add_argument('--image_data_dir', type=str, default='train',
                     help='The directory containing the image data.')
 
-parser.add_argument('--label_data_dir', type=str, default='SegmentationClassAug',
+parser.add_argument('--label_data_dir', type=str, default='trainannot',
                     help='The directory containing the augmented label data.')
 
 
@@ -59,10 +59,12 @@ def dict_to_tf_example(image_path,
     raise ValueError('Image format not JPEG')
 
   with tf.gfile.GFile(label_path, 'rb') as fid:
+    print(label_path)
     encoded_label = fid.read()
   encoded_label_io = io.BytesIO(encoded_label)
   label = PIL.Image.open(encoded_label_io)
   if label.format != 'PNG':
+    print(label.format)
     raise ValueError('Label format not PNG')
 
   if image.size != label.size:
@@ -98,7 +100,9 @@ def create_tf_record(output_filename,
     if idx % 500 == 0:
       tf.logging.info('On image %d of %d', idx, len(examples))
     image_path = os.path.join(image_dir, example + '.jpg')
+    print(image_path)
     label_path = os.path.join(label_dir, example + '.png')
+    print(label_path)
 
     if not os.path.exists(image_path):
       tf.logging.warning('Could not find %s, ignoring example.', image_path)
@@ -107,11 +111,11 @@ def create_tf_record(output_filename,
       tf.logging.warning('Could not find %s, ignoring example.', label_path)
       continue
 
-    try:
-      tf_example = dict_to_tf_example(image_path, label_path)
-      writer.write(tf_example.SerializeToString())
-    except ValueError:
-      tf.logging.warning('Invalid example: %s, ignoring.', example)
+    #try:
+  tf_example = dict_to_tf_example(image_path, label_path)
+  writer.write(tf_example.SerializeToString())
+    #except ValueError:
+      #tf.logging.warning('Invalid example: %s, ignoring.', example)
 
   writer.close()
 

@@ -7,8 +7,10 @@ from __future__ import print_function
 import argparse
 import os
 import sys
+import vis
 
 import tensorflow as tf
+import numpy as np
 
 import deeplab_model
 from utils import preprocessing
@@ -18,16 +20,17 @@ from PIL import Image
 import matplotlib.pyplot as plt
 
 from tensorflow.python import debug as tf_debug
+import time
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument('--data_dir', type=str, default='dataset/VOCdevkit/VOC2012/JPEGImages',
+parser.add_argument('--data_dir', type=str, default='dataset/TongueDataSet/test/part1',
                     help='The directory containing the image data.')
 
 parser.add_argument('--output_dir', type=str, default='./dataset/inference_output',
                     help='Path to the directory to generate the inference results')
 
-parser.add_argument('--infer_data_list', type=str, default='./dataset/sample_images_list.txt',
+parser.add_argument('--infer_data_list', type=str, default='./dataset/test.txt',
                     help='Path to the file listing the inferring images.')
 
 parser.add_argument('--model_dir', type=str, default='./model',
@@ -46,7 +49,7 @@ parser.add_argument('--output_stride', type=int, default=16,
 parser.add_argument('--debug', action='store_true',
                     help='Whether to use debugger to track down bad values during training.')
 
-_NUM_CLASSES = 21
+_NUM_CLASSES = 2
 
 
 def main(unused_argv):
@@ -83,15 +86,48 @@ def main(unused_argv):
 
   for pred_dict, image_path in zip(predictions, image_files):
     image_basename = os.path.splitext(os.path.basename(image_path))[0]
-    output_filename = image_basename + '_mask.png'
+    output_filename = image_basename + '.png'
     path_to_output = os.path.join(output_dir, output_filename)
 
+    orginalImage = np.array(Image.open(image_path))
+    img = Image.fromarray(orginalImage)
+
     print("generating:", path_to_output)
+    start = time.clock()
     mask = pred_dict['decoded_labels']
+    end = time.clock()
+    print('running time %s'%(end-start))
+    print(mask.size)
     mask = Image.fromarray(mask)
+
+    mask = mask.convert('L')
+    threshold =10
+    table = []
+    for i in range(256):
+      if i < threshold:
+        table.append(0)
+      else:
+        table.append(1)
+    mask = mask.point(table,'1')
+    mask = np.matrix(mask, dtype=np.int32)
+
+
+    print(mask)
+    voc_palette = vis.make_palette(2)
+    out_im = Image.fromarray(vis.color_seg(mask, voc_palette))
+    (shotname,extension) = os.path.splitext(image_path)
+    out_im.save(path_to_output)
+    masked_im = Image.fromarray(vis.vis_seg(img, mask, voc_palette))
+    masked_im.save(shotname+'vis.jpg')
+
+    
+
+
+
     plt.axis('off')
-    plt.imshow(mask)
+    plt.imshow(masked_im)
     plt.savefig(path_to_output, bbox_inches='tight')
+    plt.show()
 
 
 if __name__ == '__main__':
